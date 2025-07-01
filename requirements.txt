@@ -1,0 +1,7 @@
+fastapi==0.95.2
+uvicorn==0.22.0
+sqlalchemy==1.4.46  # Cambiado a versión compatible
+pydantic==1.10.7
+passlib==1.7.4
+python-jose[cryptography]==3.3.0
+python-multipart==0.0.6
