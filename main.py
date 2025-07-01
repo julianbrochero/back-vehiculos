@@ -21,9 +21,9 @@ models.Base.metadata.create_all(bind=engine)
 
 app = FastAPI()
 
-# Configuración para servir archivos estáticos y templates
-app.mount("/static", StaticFiles(directory="static"), name="static")
-templates = Jinja2Templates(directory="templates")
+# Configuración para servir archivos estáticos (si los tienes)
+# app.mount("/static", StaticFiles(directory="static"), name="static")
+# templates = Jinja2Templates(directory="templates")
 
 # Configuración CORS (para desarrollo)
 app.add_middleware(
@@ -35,7 +35,7 @@ app.add_middleware(
 )
 
 # Configuración de autenticación
-SECRET_KEY = os.getenv("SECRET_KEY", "tu_clave_secreta_aleatoria_aqui")
+SECRET_KEY = os.getenv("SECRET_KEY", "tu_clave_secreta_aleatoria_aqui_mas_larga_y_compleja_123456")
 ALGORITHM = "HS256"
 ACCESS_TOKEN_EXPIRE_MINUTES = 30
 
@@ -121,6 +121,7 @@ async def login_for_access_token(
         data={"sub": user.email}, expires_delta=access_token_expires
     )
     return {"access_token": access_token, "token_type": "bearer"}
+
 @app.post("/users/", response_model=schemas.User)
 def create_user(user: schemas.UserCreate, db: Session = Depends(get_db)):
     db_user = crud.get_user_by_email(db, email=user.email)
@@ -364,20 +365,12 @@ def get_estadisticas(
         ).count()
     }
 
-# Rutas para el frontend (opcional)
-@app.get("/", response_class=HTMLResponse)
-async def read_root(request: Request):
-    return templates.TemplateResponse("index.html", {"request": request})
-
-@app.get("/login", response_class=HTMLResponse)
-async def read_login(request: Request):
-    return templates.TemplateResponse("login.html", {"request": request})
-
-@app.get("/register", response_class=HTMLResponse)
-async def read_register(request: Request):
-    return templates.TemplateResponse("register.html", {"request": request})
+# Ruta de verificación de salud
+@app.get("/health")
+def health_check():
+    return {"status": "healthy", "message": "API de vehículos funcionando correctamente"}
 
 # Configuración para producción
 if __name__ == "__main__":
     import uvicorn
-    uvicorn.run(app, host="0.0.0.0", port=8000)
+    uvicorn.run(app, host="0.0.0.0", port=int(os.getenv("PORT", 8000)))
